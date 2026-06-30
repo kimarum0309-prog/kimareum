@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BASEBALL — The Art of the Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #07080E;
+      --navy:    #111827;
+      --card-bg: #1A2235;
+      --red:     #DC2626;
+      --red-hi:  #EF4444;
+      --white:   #FFFFFF;
+      --muted:   #8899B4;
+      --border:  rgba(255,255,255,0.07);
+      --grid:    rgba(255,255,255,0.035);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      transition: background 0.4s, border-color 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(7,8,14,0.94);
+      backdrop-filter: blur(14px);
+      border-color: var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.12em;
+    }
+    .nav-logo em { color: var(--red); font-style: normal; }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--red); }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 9px 18px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nav-btn:hover {
+      border-color: var(--white);
+      background: rgba(255,255,255,0.06);
+    }
+    .nav-btn:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 18px;
+    }
+    .hamburger span {
+      display: block;
+      height: 1.5px;
+      background: var(--white);
+      transition: background 0.2s;
+    }
+
+    /* ── HERO ────────────────────────────────── */
+    .hero {
+      position: relative;
+      height: 100svh;
+      min-height: 680px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    /* full-screen background video */
+    .hero-video-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* layered gradient — bottom-heavy for text legibility */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom,
+          rgba(7,8,14,0.15) 0%,
+          rgba(7,8,14,0.25) 40%,
+          rgba(7,8,14,0.75) 75%,
+          rgba(7,8,14,0.95) 100%);
+      z-index: 1;
+    }
+
+    /* grid overlay */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 88px 88px;
+      z-index: 2;
+    }
+
+    /* text sits at the bottom-left — cinematic style */
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      padding: 0 64px 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 18px;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeUp 0.6s ease forwards 0.4s;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 10vw, 148px);
+      letter-spacing: 0.03em;
+      line-height: 0.88;
+      color: var(--white);
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.75s ease forwards 0.6s;
+    }
+
+    .hero-title em {
+      display: block;
+      color: var(--white);
+      font-style: normal;
+    }
+
+    .hero-sub {
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeUp 0.65s ease forwards 0.8s;
+    }
+
+    /* mute toggle button */
+    .hero-mute {
+      position: absolute;
+      bottom: 72px;
+      right: 64px;
+      z-index: 4;
+      width: 40px; height: 40px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(7,8,14,0.5);
+      backdrop-filter: blur(6px);
+      color: var(--white);
+      font-size: 16px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: border-color 0.2s, background 0.2s;
+      opacity: 0;
+      animation: fadeIn 0.6s ease forwards 1.2s;
+    }
+    .hero-mute:hover {
+      border-color: var(--red);
+      background: rgba(220,38,38,0.15);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.4s;
+    }
+    .scroll-hint span {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .scroll-bar {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+      animation: pulse 2.2s ease infinite;
+    }
+
+    @keyframes fadeUp  { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn  { to { opacity: 1; } }
+    @keyframes pulse   { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+    /* ── TICKER ──────────────────────────────── */
+    .ticker {
+      overflow: hidden;
+      background: var(--red);
+      padding: 13px 0;
+      border-top: 1px solid rgba(0,0,0,0.15);
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+    }
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: roll 32s linear infinite;
+    }
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 36px;
+      white-space: nowrap;
+    }
+    .ticker-item span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      color: var(--white);
+    }
+    .ticker-dot {
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.45);
+      flex-shrink: 0;
+    }
+    @keyframes roll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── ACHIEVEMENTS ────────────────────────── */
+    .achievements {
+      padding: 100px 52px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 60px;
+      text-align: center;
+    }
+
+    .ach-list { display: flex; flex-direction: column; }
+
+    .ach-item {
+      display: grid;
+      grid-template-columns: 180px 1fr 220px;
+      align-items: center;
+      gap: 52px;
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .ach-item:first-child { border-top: 1px solid var(--border); }
+    .ach-item.in { opacity: 1; transform: translateY(0); }
+
+    .ach-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(56px, 5.5vw, 84px);
+      line-height: 1;
+      color: var(--red);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ach-body { display: flex; flex-direction: column; gap: 9px; }
+
+    .ach-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--white);
+    }
+    .ach-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 500px;
+    }
+
+    .ach-meta {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ach-year {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .ach-team {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: rgba(136,153,180,0.55);
+      text-transform: uppercase;
+    }
+
+    /* ── CARDS ───────────────────────────────── */
+    .cards-section {
+      background: var(--navy);
+      padding: 100px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cards-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+    }
+
+    .cards-inner {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .cards-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 72px;
+    }
+    .cards-h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(34px, 4vw, 54px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+    .cards-sub {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 260px;
+      text-align: right;
+      line-height: 1.65;
+    }
+
+    /* 1px gutter grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 56px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--red);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.38s ease;
+    }
+    .card:hover { background: #1F2D44; }
+    .card:hover::before { transform: scaleX(1); }
+
+    .card-idx {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      color: var(--red);
+      font-variant-numeric: tabular-nums;
+    }
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 23px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--white);
+    }
+    .card-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.72;
+      flex: 1;
+    }
+    .card-link {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--red);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: gap 0.2s;
+      width: fit-content;
+    }
+    .card-link:hover { gap: 14px; }
+    .card-link::after { content: '→'; }
+    .card-link:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 56px 52px;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 0.12em;
+    }
+    .footer-logo em { color: var(--red); font-style: normal; }
+    .footer-copy {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── SCROLL TOP ──────────────────────────── */
+    .scroll-top {
+      position: fixed;
+      bottom: 36px;
+      right: 36px;
+      z-index: 300;
+      width: 48px;
+      height: 48px;
+      background: var(--red);
+      border: none;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.3s, transform 0.3s, background 0.2s;
+      pointer-events: none;
+    }
+    .scroll-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .scroll-top:hover { background: var(--red-hi); }
+    .scroll-top:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+    .scroll-top svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--white);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+
+      .hero-content { padding: 0 24px; }
+
+      .achievements { padding: 72px 24px; }
+      .ach-item {
+        grid-template-columns: 110px 1fr;
+        gap: 24px;
+      }
+      .ach-meta { display: none; }
+
+      .cards-section { padding: 72px 24px; }
+      .cards-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .cards-sub { text-align: left; max-width: 100%; }
+      .cards-grid { grid-template-columns: 1fr; }
+
+      footer { padding: 40px 24px; }
+      .footer-inner { flex-direction: column; gap: 14px; text-align: center; }
+    }
+
+    /* ── REDUCED MOTION ──────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .hero-title,
+      .hero-eyebrow,
+      .hero-sub,
+      .hero-mute,
+      .scroll-hint { animation: none; opacity: 1; transform: none; }
+      .ach-item { opacity: 1; transform: none; transition: none; }
+      .ticker-track { animation: none; }
+      .scroll-bar { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="nav-logo">BALL<em>PARK</em></div>
+  <ul class="nav-links">
+    <li><a href="#highlights">하이라이트</a></li>
+    <li><a href="#achievements">업적</a></li>
+    <li><a href="#info">야구 정보</a></li>
+  </ul>
+  <button class="nav-btn" aria-label="메뉴 열기">
+    <div class="hamburger" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </button>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────── -->
+<section class="hero" id="highlights">
+
+  <!--
+    ═══════════════════════════════════════════════════════
+     영상 교체 방법
+     로컬 파일: <source src="your-video.mp4" type="video/mp4">
+     영상 파일을 이 HTML 파일과 같은 폴더에 넣은 뒤 src를 수정하세요.
+    ═══════════════════════════════════════════════════════
+  -->
+  <video class="hero-video-bg" id="heroBg"
+         autoplay muted loop playsinline
+         aria-hidden="true">
+    <source src="동영상.mp4" type="video/mp4">
+    <!-- 영상 파일이 없으면 배경은 어두운 그라디언트로 표시됩니다 -->
+  </video>
+
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <h1 class="hero-title">
+      THE ART OF
+      <em>BASEBALL</em>
+    </h1>
+    <p class="hero-sub">승리를 향한 집념, 그리고 경기장을 가득 채우는 환호.</p>
+  </div>
+
+  <!-- mute / unmute toggle -->
+  <button class="hero-mute" id="muteBtn" aria-label="음소거 해제" title="음소거 해제">
+    🔇
+  </button>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="scroll-bar"></div>
+  </div>
+</section>
+
+<!-- ── TICKER ────────────────────────────────── -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <div class="ticker-item"><span>야구 — 전략과 순발력의 스포츠</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>역대 최고 타율 .406</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>통산 최다 홈런 762개</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>연속 출전 2,632경기</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>월드 시리즈 27회 우승</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>야구의 역사 150년</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>KBO 누적 관중 7천만</span><div class="ticker-dot"></div></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span>야구 — 전략과 순발력의 스포츠</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>역대 최고 타율 .406</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>통산 최다 홈런 762개</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>연속 출전 2,632경기</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>월드 시리즈 27회 우승</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>야구의 역사 150년</span><div class="ticker-dot"></div></div>
+    <div class="ticker-item"><span>KBO 누적 관중 7천만</span><div class="ticker-dot"></div></div>
+  </div>
+</div>
+
+<!-- ── ACHIEVEMENTS ───────────────────────────── -->
+<section id="achievements">
+  <div class="achievements">
+    <p class="section-eyebrow">주요 업적 &amp; 기록</p>
+    <div class="ach-list">
+
+      <div class="ach-item">
+        <div class="ach-num">.406</div>
+        <div class="ach-body">
+          <div class="ach-title">역대 최고 단일 시즌 타율</div>
+          <div class="ach-desc">테드 윌리엄스가 1941년 달성한 타율 .406은 80년이 넘도록 깨지지 않은 불멸의 기록입니다. 현대 야구에서 .350을 넘기도 힘든 시대에, 이 수치가 얼마나 경이로운지 더욱 빛을 발합니다.</div>
+        </div>
+        <div class="ach-meta">
+          <span class="ach-year">1941</span>
+          <span class="ach-team">Boston Red Sox</span>
+        </div>
+      </div>
+
+      <div class="ach-item">
+        <div class="ach-num">762</div>
+        <div class="ach-body">
+          <div class="ach-title">통산 최다 홈런</div>
+          <div class="ach-desc">배리 본즈의 통산 762개 홈런은 MLB 역대 최다 기록입니다. 2001년 단일 시즌 73개라는 전무후무한 기록도 함께 보유하고 있으며, 공격력의 정점을 보여주는 역사적인 성취입니다.</div>
+        </div>
+        <div class="ach-meta">
+          <span class="ach-year">2007</span>
+          <span class="ach-team">San Francisco Giants</span>
+        </div>
+      </div>
+
+      <div class="ach-item">
+        <div class="ach-num">2,632</div>
+        <div class="ach-body">
+          <div class="ach-title">연속 경기 출전 — 철인의 기록</div>
+          <div class="ach-desc">칼 립켄 주니어는 1982년부터 1998년까지 16년간 단 하루도 쉬지 않고 2,632경기에 연속 출전했습니다. 부상, 슬럼프, 가족 행사도 그를 멈추지 못한 인류 최강의 내구성 기록입니다.</div>
+        </div>
+        <div class="ach-meta">
+          <span class="ach-year">1998</span>
+          <span class="ach-team">Baltimore Orioles</span>
+        </div>
+      </div>
+
+      <div class="ach-item">
+        <div class="ach-num">27</div>
+        <div class="ach-body">
+          <div class="ach-title">월드 시리즈 최다 우승</div>
+          <div class="ach-desc">뉴욕 양키스는 MLB 역사상 27번의 월드 시리즈 우승을 차지했습니다. 2위 팀의 두 배에 가까운 이 압도적인 숫자는 베이브 루스, 루 게릭, 조 디마지오, 데릭 지터로 이어지는 왕조의 역사입니다.</div>
+        </div>
+        <div class="ach-meta">
+          <span class="ach-year">1923–2009</span>
+          <span class="ach-team">New York Yankees</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CARDS ──────────────────────────────────── -->
+<section class="cards-section" id="info">
+  <div class="cards-inner">
+    <div class="cards-header">
+      <h2 class="cards-h2">야구를<br>알아가다</h2>
+      <p class="cards-sub">역사부터 포지션, 규칙, 통계까지 — 알수록 깊어지는 야구의 세계</p>
+    </div>
+
+    <div class="cards-grid">
+
+      <div class="card">
+        <span class="card-idx">01</span>
+        <div class="card-title">야구의 역사</div>
+        <p class="card-text">19세기 중반 미국에서 시작된 야구는 1846년 알렉산더 카트라이트가 현대적 규칙을 정립하며 발전했습니다. 1869년 최초의 프로팀 신시내티 레드 스타킹스가 출범했고, 이후 150년 이상 미국의 국민 스포츠로 사랑받으며 전 세계로 퍼져나갔습니다.</p>
+        <a href="#" class="card-link">더 알아보기</a>
+      </div>
+
+      <div class="card">
+        <span class="card-idx">02</span>
+        <div class="card-title">포지션 가이드</div>
+        <p class="card-text">야구는 9개 포지션으로 구성됩니다. 투수(P)·포수(C)의 배터리를 중심으로 내야의 1루수·2루수·3루수·유격수, 외야의 좌·중·우익수가 각자의 역할을 맡습니다. 포지션마다 요구되는 신체 능력과 사고방식이 전혀 다릅니다.</p>
+        <a href="#" class="card-link">포지션 보기</a>
+      </div>
+
+      <div class="card">
+        <span class="card-idx">03</span>
+        <div class="card-title">경기 기본 규칙</div>
+        <p class="card-text">야구는 9이닝 동안 공격과 수비를 교대합니다. 각 이닝 3아웃을 기록하면 공수가 바뀝니다. 스트라이크 3개는 삼진 아웃, 볼 4개는 볼넷 출루입니다. 1·2·3루를 밟고 홈을 밟으면 득점 — 단순하면서도 무한히 복잡한 스포츠입니다.</p>
+        <a href="#" class="card-link">규칙 알아보기</a>
+      </div>
+
+      <div class="card">
+        <span class="card-idx">04</span>
+        <div class="card-title">주요 통계 지표</div>
+        <p class="card-text">야구는 통계의 스포츠입니다. 타자는 타율(AVG)·출루율(OBP)·장타율(SLG)·OPS를, 투수는 ERA·WHIP·탈삼진을 핵심 지표로 봅니다. 세이버메트릭스의 발전으로 WAR, xFIP, Statcast 데이터 등 고급 분석이 전략의 중심이 됐습니다.</p>
+        <a href="#" class="card-link">통계 분석</a>
+      </div>
+
+      <div class="card">
+        <span class="card-idx">05</span>
+        <div class="card-title">한국 프로야구 KBO</div>
+        <p class="card-text">1982년 출범한 KBO 리그는 현재 10개 구단이 경쟁하는 아시아 최고 수준의 프로 야구 리그입니다. 류현진·추신수·박찬호·김병현이 MLB 무대에서 활약하며 위상을 높였고, 연간 700만 관중이 경기장을 찾는 국내 최고 인기 스포츠입니다.</p>
+        <a href="#" class="card-link">KBO 알아보기</a>
+      </div>
+
+      <div class="card">
+        <span class="card-idx">06</span>
+        <div class="card-title">전설의 선수들</div>
+        <p class="card-text">베이브 루스, 테드 윌리엄스, 행크 에런, 윌리 메이스, 재키 로빈슨 — 야구 역사를 수놓은 이름들입니다. 1947년 인종 장벽을 넘어 MLB에 데뷔한 재키 로빈슨의 등번호 42는 전 구단 영구 결번으로 지정돼 그의 용기를 기리고 있습니다.</p>
+        <a href="#" class="card-link">명예의 전당</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SCROLL TOP ────────────────────────────── -->
+<button class="scroll-top" id="scrollTop" aria-label="맨 위로">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
+
+<!-- ── FOOTER ─────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">BALL<em>PARK</em></div>
+    <p class="footer-copy">© 2025 BALLPARK — The Art of Baseball</p>
+  </div>
+</footer>
+
+<script>
+  // nav scroll
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  // scroll top button
+  const scrollTopBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // mute toggle
+  const video = document.getElementById('heroBg');
+  const muteBtn = document.getElementById('muteBtn');
+  muteBtn.addEventListener('click', () => {
+    video.muted = !video.muted;
+    muteBtn.textContent = video.muted ? '🔇' : '🔊';
+    muteBtn.setAttribute('aria-label', video.muted ? '음소거 해제' : '음소거');
+  });
+
+  // achievement scroll reveal with stagger
+  const achItems = document.querySelectorAll('.ach-item');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const idx = [...achItems].indexOf(entry.target);
+        setTimeout(() => entry.target.classList.add('in'), idx * 90);
+        revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  achItems.forEach(el => revealObs.observe(el));
+</script>
+</body>
+</html>
